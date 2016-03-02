@@ -8,9 +8,17 @@
 	<description>Template project for Spark on Scala using Maven as build system.</description>
 
 	<properties>
-		<scala.major.version>2.10</scala.major.version>
-		<scala.patch.version>6</scala.patch.version>
-		<spark.version>1.5.2</spark.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<encoding>UTF-8</encoding>
+		<!-- scala + utils -->
+		<scala.major.version>2.11</scala.major.version>
+		<scala.patch.version>7</scala.patch.version>
+		<scalatest.version>2.2.6</scalatest.version>
+		<!-- other -->
+		<datastax.version>1.5.0</datastax.version>
+		<kafka.version>0.8.2.1</kafka.version>
+		<spark.version>1.6.0</spark.version>
 	</properties>
 
 	<dependencies>
@@ -32,18 +40,18 @@
 		<dependency>
 			<groupId>org.scalatest</groupId>
 			<artifactId>scalatest_${scala.major.version}</artifactId>
-			<version>2.2.6</version>
+			<version>${scalatest.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.datastax.spark</groupId>
 			<artifactId>spark-cassandra-connector_${scala.major.version}</artifactId>
-			<version>1.5.0-M3</version>
+			<version>${datastax.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.datastax.spark</groupId>
 			<artifactId>spark-cassandra-connector-embedded_${scala.major.version}</artifactId>
-			<version>1.5.0-M3</version>
+			<version>${datastax.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
@@ -52,8 +60,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.10</artifactId>
-			<version>0.8.2.1</version>
+			<artifactId>kafka_${scala.major.version}</artifactId>
+			<version>${kafka.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -65,19 +73,29 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
-				<version>3.2.1</version>
-				<configuration>
-					<recompileMode>incremental</recompileMode>
-					<args>
-						<arg>-deprecation</arg>
-						<arg>-explaintypes</arg>
-						<arg>-target:jvm-1.7</arg>
-					</args>
-				</configuration>
+				<version>3.2.0</version>
 				<executions>
 					<execution>
 						<id>scala-compile-first</id>
 						<phase>process-resources</phase>
+						<configuration>
+							<recompileMode>incremental</recompileMode>
+							<useZincServer>true</useZincServer>
+							<args>
+								<param>-language:_</param>
+								<param>-g:vars</param>
+								<param>-unchecked</param>
+								<param>-deprecation</param>
+								<param>-encoding</param>
+								<param>utf8</param>
+							</args>
+							<javacArgs>
+								<javacArg>-target</javacArg>
+								<javacArg>8</javacArg>
+								<javacArg>-source</javacArg>
+								<javacArg>8</javacArg>
+							</javacArgs>
+						</configuration>
 						<goals>
 							<goal>add-source</goal>
 							<goal>compile</goal>
@@ -86,12 +104,32 @@
 					<execution>
 						<id>scala-test-compile</id>
 						<phase>process-test-resources</phase>
+						<configuration>
+							<args>
+								<param>-language:_</param>
+								<param>-g:vars</param>
+								<param>-unchecked</param>
+								<param>-deprecation</param>
+								<param>-encoding</param>
+								<param>utf8</param>
+							</args>
+							<javacArgs>
+								<javacArg>-target</javacArg>
+								<javacArg>8</javacArg>
+								<javacArg>-source</javacArg>
+								<javacArg>8</javacArg>
+							</javacArgs>
+						</configuration>
 						<goals>
-							<goal>add-source</goal>
 							<goal>testCompile</goal>
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<jvmArgs>
+						<jvmArg>-Xmx2G</jvmArg>
+					</jvmArgs>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
